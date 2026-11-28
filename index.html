@@ -269,12 +269,12 @@ h1 span,h2 span{background:linear-gradient(100deg,#d7a8ff,#ff89d2 55%,#c9ff68);-
   
 <section id="screen-admin" class="screen admin-screen" aria-label="Admin Dashboard">
 <div class="admin-wrap"><div class="admin-mascot" aria-hidden="true"><i></i><i></i><b></b><span>🦷</span></div><div class="admin-top"><div><p class="eyebrow">PRIVATE ACCESS · JENG ONLY</p><h2>CONTROL<br><span>ROOM.</span></h2></div><button class="secondary-button" id="admin-exit">EXIT ↗</button></div>
-<p class="copy">Admin controls. RSVP reset is synced to Supabase; guest summaries and edits remain local until the live dashboard upgrade.</p>
+<p class="copy">Admin controls. RSVP status and Plus-One are read live from Supabase on login and after resets. Profile notes and fortune history remain browser-local.</p>
 <div class="admin-stats"><div><b id="stat-yes">0</b><small>YES</small></div><div><b id="stat-no">0</b><small>NO</small></div><div><b id="stat-pending">15</b><small>PENDING</small></div><div><b id="stat-plus">0/3</b><small>PLUS-ONES</small></div></div>
 <div class="admin-actions"><button class="secondary-button" id="admin-add">＋ ADD GUEST</button><button class="secondary-button" id="admin-export">EXPORT JSON ↗</button><button class="secondary-button danger" id="admin-reset-rsvp">RESET ALL RSVP</button><button class="secondary-button danger" id="admin-reset-fortunes">RESET ALL FORTUNES</button><button class="secondary-button danger" id="admin-full-reset">☢ FULL EVENT RESET</button></div>
 <input class="name-input admin-search" id="admin-search" placeholder="Search guest / code / RSVP...">
 <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>GUEST</th><th>CODE</th><th>RSVP</th></tr></thead><tbody id="admin-rows"></tbody></table></div>
-<div class="admin-note">ADMIN CONTROL: Reset guest and Reset All RSVP also unlock the Supabase RSVP record. Guest edits, descriptions, fortune records and other demo controls remain browser-local.</div>
+<div class="admin-note">ADMIN CONTROL: RSVP status and Plus-One come from live Supabase reads, never browser RSVP cache. Guest profile notes and fortune records remain browser-local.</div>
 </div></section>
 <style>
 .admin-screen{justify-content:flex-start!important;text-align:left!important}.admin-wrap{width:100%;max-width:100%;padding-top:8px}.admin-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.admin-top h2{font-size:clamp(2rem,8vw,3.2rem)!important}.admin-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 18px}.admin-stats>div{background:rgba(40,24,60,.75);border:1px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center}.admin-stats b{display:block;font:22px 'Unbounded';color:var(--lav)}.admin-stats small{display:block;font:9px 'DM Mono';color:var(--muted);margin-top:6px}.admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.admin-actions .secondary-button{font-size:9px;padding:10px 12px}.danger{border-color:rgba(238,135,155,.4)!important;color:#f1b2c3!important}.admin-search{max-width:none;width:100%;margin:8px 0 12px;letter-spacing:normal;font-size:12px}.admin-table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:rgba(10,5,18,.45)}.admin-table{width:100%;border-collapse:collapse;min-width:650px;font-size:11px}.admin-table th,.admin-table td{padding:10px 8px;border-bottom:1px solid rgba(211,188,245,.12);text-align:left;vertical-align:top}.admin-table th{font:9px 'DM Mono';letter-spacing:.1em;color:var(--gold);position:sticky;top:0;background:#201331}.admin-table td{color:#d8cbe8}.admin-table button{padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:#302047;color:#eee;font-size:10px;margin:2px;cursor:pointer}.admin-table .rsvp-yes{color:#a6e5c3}.admin-table .rsvp-no{color:#efafc0}.admin-table .rsvp-pending{color:#d9b879}.admin-note{font:10px 'DM Mono';color:#8e7e9f;line-height:1.6;margin:14px 0}.admin-screen .copy{font-size:12px;margin:8px 0 12px}.admin-modal{position:fixed;z-index:50;inset:0;background:rgba(5,2,10,.82);display:flex;align-items:center;justify-content:center;padding:16px}.admin-modal-card{width:min(520px,100%);max-height:90vh;overflow:auto;background:#1c1030;border:1px solid var(--line);border-radius:16px;padding:18px}.admin-modal-card h3{font-family:Unbounded;font-size:18px;margin:0 0 14px}.admin-modal-card label{display:block;font:10px 'DM Mono';color:var(--gold);margin:10px 0 5px}.admin-modal-card input,.admin-modal-card textarea,.admin-modal-card select{width:100%;background:#10091e;color:#fff;border:1px solid var(--line);border-radius:9px;padding:10px}.admin-modal-card textarea{min-height:90px}.modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.modal-actions button{flex:1}.admin-modal-card .primary-button,.admin-modal-card .secondary-button{font-size:10px;padding:11px}
@@ -374,7 +374,7 @@ h1 span,h2 span{background:linear-gradient(100deg,#d7a8ff,#ff89d2 55%,#c9ff68);-
 <div id="photo-no-modal" role="dialog" aria-modal="true" aria-labelledby="photo-no-title"><div class="prank-card"><p>PHOTO VERIFICATION // REALLY?</p><h2 class="prank-title" id="photo-no-title">FUCK<br>OFF.</h2><p>CODE WAS SENT TO YOU PERSONALLY. BE SERIOUS. 💀<br>NOW GO BACK AND CLICK “YES, THAT’S ME”.</p><button class="primary-button" id="photo-no-dismiss">FINE. I’LL CLICK YES <span>↗</span></button></div></div>
 <script>
 // Supabase authentication config. Replace the placeholder with your project's PUBLIC anon/publishable key. Never use service_role here.
-const LOCAL_PREVIEW_MODE=false; // LIVE MODE: Supabase authentication and database writes enabled.
+const LOCAL_PREVIEW_MODE=false; // FINAL: Supabase is authoritative; no local RSVP mode.
 const SUPABASE_FUNCTION_URL='https://kcppulufilgalmyzehly.supabase.co/functions/v1/bright-handler';
 const SUPABASE_ANON_KEY='sb_publishable__GZ_eEfqMe7pJ7WlsBEBUg_RgqAhC5i';
 const guests={
@@ -411,11 +411,6 @@ function confirmPhoto(isCorrect){localStorage.setItem(identityStorageKey(),'YES'
 // Guest authentication is verified by Supabase. Other prototype features may still use localStorage.
 const screens=[...document.querySelectorAll('.screen')];let guestName='',guestCode='',rsvpChoice='',descriptionSaved='',plusOneName='';
 let rsvpServerState={status:'PENDING',locked:false,plus_one_name:null,plus_one_claimed:0,slotsKnown:false};
-const LOCAL_RSVP_PREFIX='birthdayJengLocalPreviewRsvp_';
-function readLocalRsvp(code){try{return JSON.parse(localStorage.getItem(LOCAL_RSVP_PREFIX+code)||'null')||{status:'PENDING',locked:false,plus_one_name:null};}catch{return {status:'PENDING',locked:false,plus_one_name:null};}}
-function saveLocalRsvp(code,data){localStorage.setItem(LOCAL_RSVP_PREFIX+code,JSON.stringify(data));}
-function localPlusOneCount(){return Object.keys(guests).filter(c=>c!=='GJEN').map(readLocalRsvp).filter(r=>r.status==='YES'&&r.plus_one_name).length;}
-function loadLocalRsvpState(){const local=readLocalRsvp(guestCode);rsvpServerState={status:local.status||'PENDING',locked:Boolean(local.locked),plus_one_name:local.plus_one_name||null,plus_one_claimed:localPlusOneCount(),slotsKnown:true};return rsvpServerState;}
 function show(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo({top:0,behavior:'smooth'});}
 function words(text){return text.trim().split(/\s+/).filter(Boolean).length;}
 function countWords(){const n=words(document.getElementById('description').value);const count=document.getElementById('word-count');const feedback=document.getElementById('word-feedback');const button=document.getElementById('submit-description');count.textContent=`${n} WORD${n===1?'':'S'}`;button.disabled=n<20;if(n===0)feedback.textContent="I'm waiting.";else if(n<19)feedback.textContent='Do better. 20 tu je? 😭';else if(n===19)feedback.textContent='19 je? Tambah satu lagi.';else if(n===20)feedback.textContent='ITU JEKE? 😭';else feedback.textContent='Okay, cukup. Kenapa u lebih tahu diri I ni? Please stop 😭';}
@@ -426,11 +421,7 @@ async function codeVerify(){
   const button=document.querySelector('#screen-code button.primary-button');
   err.textContent='';
   if(!val || val.length<4){err.textContent='Please enter your invitation code.';input.focus();return;}
-  if(LOCAL_PREVIEW_MODE){
-    if(val==='GJEN'){guestCode='GJEN';guestName='JENG';adminMode=true;document.getElementById('secret-code').value='';renderAdmin();show('screen-admin');return;}
-    if(val==='RIFT'){guestCode='RIFT';guestName=guests.RIFT;setGuestDisplay('RIFT');document.getElementById('secret-code').value='';loadFortunes();resetIdentityCheck();show('screen-reveal');return;}
-    err.textContent='LOCAL PREVIEW ONLY: use GJEN (admin) or RIFT (guest).';input.classList.remove('shake');void input.offsetWidth;input.classList.add('shake');input.focus();return;
-  }
+  if(LOCAL_PREVIEW_MODE){err.textContent='Local preview is disabled in this production build.';return;}
   if(SUPABASE_ANON_KEY.includes('PASTE_YOUR_')){err.textContent='Supabase public anon key belum dimasukkan dalam HTML.';return;}
   if(button){button.disabled=true;button.textContent='VERIFYING…';}
   try{
@@ -491,7 +482,7 @@ async function codeVerify(){
       }
     }
     document.getElementById('secret-code').value='';
-    if(person.is_admin===true){adminMode=true;renderAdmin();show('screen-admin');return;}
+    if(person.is_admin===true){adminMode=true;await refreshAdminRsvpsFromServer();renderAdmin();show('screen-admin');return;}
     loadFortunes();resetIdentityCheck();show('screen-reveal');
   }catch(e){
     err.textContent=e.message==='Failed to fetch'?'Unable to connect. Check your connection and Supabase settings.':(e.message||'Code ni tak wujud. Cuba tanya Jeng sebelum cuba nasib.');
@@ -653,7 +644,6 @@ document.getElementById('go-rsvp').addEventListener('click',async()=>{
  const confirmButton=document.getElementById('confirm-rsvp');confirmButton.classList.add('hidden');confirmButton.disabled=true;
  const message=document.getElementById('rsvp-locked-message');message.classList.remove('hidden');message.textContent='Checking your saved RSVP and Plus-One availability…';
  show('screen-rsvp');
- if(LOCAL_PREVIEW_MODE){loadLocalRsvpState();renderRsvpServerState();return;}
  try{await loadRsvpServerState();renderRsvpServerState();}
  catch(e){
    rsvpServerState={status:'UNKNOWN',locked:true,plus_one_name:null,plus_one_claimed:0,slotsKnown:false};
@@ -693,20 +683,14 @@ document.getElementById('confirm-rsvp').addEventListener('click',async()=>{
  if(wantsPlus&&!enteredPlus){error.textContent='Your additional human needs a name. We are not accepting mysterious creatures.';return;}
  if(wantsPlus&&enteredPlus.length>100){error.textContent='Plus-One name must be 100 characters or fewer.';return;}
  if(!LOCAL_PREVIEW_MODE&&SUPABASE_ANON_KEY.includes('PASTE_YOUR_')){error.textContent='Supabase public anon key belum dimasukkan dalam HTML.';return;}
- if(LOCAL_PREVIEW_MODE&&wantsPlus&&localPlusOneCount()>=3){error.textContent='All local preview Plus-One slots have been claimed.';return;}
  plusOneName=enteredPlus;error.textContent='';button.disabled=true;button.textContent='SAVING RSVP…';
  try{
-   if(LOCAL_PREVIEW_MODE){saveLocalRsvp(guestCode,{status:rsvpChoice,locked:true,plus_one_name:enteredPlus||null});}
-   else{
-     await callBirthdayFunction({action:'save-rsvp',code:guestCode,rsvp:rsvpChoice,bring_plus_one:wantsPlus,plus_one_name:enteredPlus});
-     const verified=await loadRsvpServerState();
-     if(verified.status!==rsvpChoice||!verified.locked||(verified.plus_one_name||null)!==(enteredPlus||null)){
-       throw new Error('RSVP was submitted, but live database read-back did not match. Please contact Jeng before retrying.');
-     }
+   await callBirthdayFunction({action:'save-rsvp',code:guestCode,rsvp:rsvpChoice,bring_plus_one:wantsPlus,plus_one_name:enteredPlus});
+   const verified=await loadRsvpServerState();
+   if(verified.status!==rsvpChoice||!verified.locked||(verified.plus_one_name||null)!==(enteredPlus||null)){
+     throw new Error('RSVP was submitted, but live database read-back did not match. Please contact Jeng before retrying.');
    }
    rsvpServerState={status:rsvpChoice,locked:true,plus_one_name:enteredPlus||null,plus_one_claimed:rsvpServerState.plus_one_claimed+(wantsPlus?1:0),slotsKnown:rsvpServerState.slotsKnown};
-   // Keep local demo admin view in sync for this browser only; Supabase is the source of truth.
-   const localGuest=findAdminGuest(guestCode);if(localGuest){localGuest.rsvp=rsvpChoice;localGuest.plusOne=enteredPlus;adminDataSave(adminGuests);}
    const yes=rsvpChoice==='YES';document.getElementById('confirm-title').innerHTML=yes?'WELCOME<br>TO THE <span>CHAOS.</span>':'OH. YOU’RE<br><span>NOT COMING.</span>';
    document.getElementById('confirm-copy').textContent=yes?(plusOneName?`Welcome to the chaos,\n${guestIdentity(guestCode)}\n—and ${plusOneName}. You are officially expected.`:`Welcome to the chaos,\n${guestIdentity(guestCode)}\nSee you there. Don't be late. 🫡`):'ABSENCE CONFIRMED. Your absence has been documented. 💀 We will pretend not to notice.';
    document.querySelector('#screen-confirm .eyebrow').textContent=yes?'RSVP CONFIRMED':'RSVP DECLINED';document.querySelector('.confirm-fuggler').classList.toggle('hidden',!yes);document.querySelector('.followup-buttons').classList.toggle('hidden',!yes);if(yes)makeTeeth();else document.getElementById('teeth-rain').innerHTML='';show('screen-confirm');
@@ -726,16 +710,17 @@ document.getElementById('restart').addEventListener('click',()=>{guestName='';gu
 // Note: the current dashboard prototype is local-browser data, not yet a live Supabase admin read panel.
 const ADMIN_KEY='birthdayJengAdminDemoData_v2_identity';
 const baseGuestList=Object.entries(guests).filter(([code])=>code!=='GJEN').map(([code,name])=>({code,name,rsvp:'PENDING',plusOne:'',description:'',fortunes:[],deleted:false}));
-function adminDataLoad(){try{const raw=JSON.parse(localStorage.getItem(ADMIN_KEY));const saved=Array.isArray(raw)?raw:[];return baseGuestList.map(base=>{const prior=saved.find(g=>g&&g.code===base.code)||{};return {...base,...prior,code:base.code,name:base.name,fortunes:Array.isArray(prior.fortunes)?prior.fortunes:[],deleted:Boolean(prior.deleted)};});}catch(e){return baseGuestList.map(x=>({...x}));}}
-function adminDataSave(d){localStorage.setItem(ADMIN_KEY,JSON.stringify(d));}
+function adminDataLoad(){try{const raw=JSON.parse(localStorage.getItem(ADMIN_KEY));const saved=Array.isArray(raw)?raw:[];return baseGuestList.map(base=>{const prior=saved.find(g=>g&&g.code===base.code)||{};return {...base,...prior,code:base.code,name:base.name,rsvp:'PENDING',plusOne:'',fortunes:Array.isArray(prior.fortunes)?prior.fortunes:[],deleted:Boolean(prior.deleted)};});}catch(e){return baseGuestList.map(x=>({...x,rsvp:'PENDING',plusOne:''}));}}
+function adminDataSave(d){const clean=d.map(g=>{const {rsvp,plusOne,...profile}=g;return profile;});localStorage.setItem(ADMIN_KEY,JSON.stringify(clean));}
 let adminGuests=adminDataLoad(),adminMode=false;
 function findAdminGuest(code){return adminGuests.find(g=>g.code===code)}
+async function refreshAdminRsvpsFromServer(){if(LOCAL_PREVIEW_MODE)throw new Error('Local RSVP mode is disabled in this final build.');const active=adminGuests.filter(g=>!g.deleted&&g.code!=='GJEN'&&Object.prototype.hasOwnProperty.call(guests,g.code));const results=await Promise.all(active.map(g=>callBirthdayFunction({action:'get-rsvp',code:g.code})));results.forEach((result,i)=>{const g=active[i],r=result.rsvp||{};g.rsvp=(r.status||'PENDING').toUpperCase();g.plusOne=r.plus_one_name||'';});adminGuests.filter(g=>!g.deleted&&g.code!=='GJEN'&&!Object.prototype.hasOwnProperty.call(guests,g.code)).forEach(g=>{g.rsvp='NOT IN DATABASE';g.plusOne='';});return active;}
 function syncAdminGuestFortunes(){adminGuests.forEach(g=>{try{g.fortunes=JSON.parse(localStorage.getItem(fortuneStorageKey(g.code))||'{"draws":[]}').draws||[]}catch(e){g.fortunes=[]}})}
 function plusOneCount(){return adminGuests.filter(g=>!g.deleted&&g.rsvp==='YES'&&g.plusOne).length;}
 function renderAdmin(){syncAdminGuestFortunes();const active=adminGuests.filter(g=>!g.deleted);const yes=active.filter(g=>g.rsvp==='YES').length,no=active.filter(g=>g.rsvp==='NO').length,pending=active.filter(g=>!g.rsvp||g.rsvp==='PENDING').length,plus=active.filter(g=>g.rsvp==='YES'&&g.plusOne).length;document.getElementById('stat-yes').textContent=yes;document.getElementById('stat-no').textContent=no;document.getElementById('stat-pending').textContent=pending;document.getElementById('stat-plus').textContent=plus+'/3';document.querySelectorAll('.admin-stats>div').forEach((card,i)=>{const statuses=['YES','NO','PENDING'];if(i<3){const names=active.filter(g=>g.rsvp===statuses[i]||(i===2&&(!g.rsvp||g.rsvp==='PENDING'))).map(g=>g.name);card.dataset.names=names.join('|');card.title=names.length?names.join(' · '):'No guests';}else{const names=active.filter(g=>g.rsvp==='YES'&&g.plusOne).map(g=>g.name+' + '+g.plusOne);card.dataset.names=names.join('|');card.title=names.join(' · ')||'No Plus-Ones';}});const q=(document.getElementById('admin-search')?.value||'').toLowerCase();const tbody=document.getElementById('admin-rows');tbody.innerHTML='';active.filter(g=>(g.name+' '+g.code+' '+g.rsvp+' '+g.plusOne).toLowerCase().includes(q)).forEach(g=>{const tr=document.createElement('tr');tr.innerHTML=`<td><button class="guest-detail-toggle" data-action="details" data-code="${escAdmin(g.code)}"><b>${escAdmin(g.name)}</b> <span>⌄</span></button></td><td>${escAdmin(g.code)}</td><td class="rsvp-${(g.rsvp||'PENDING').toLowerCase()}">${g.rsvp||'PENDING'}</td>`;tbody.appendChild(tr);const detail=document.createElement('tr');detail.className='guest-detail-row hidden';detail.dataset.detailCode=g.code;detail.innerHTML=`<td colspan="3"><div class="guest-detail-panel"><div><strong>GUEST PROFILE</strong><p>${escAdmin(guestInstagram[g.code]||'No Instagram listed')}</p><strong>WHAT JENG KNOWS & DOESN'T KNOW</strong><p>${escAdmin(g.description||'No description written.')}</p></div><div class="detail-meta">PLUS-ONE: ${escAdmin(g.plusOne||'—')} · FORTUNE: ${g.fortunes.length}/2 · PHOTO: ${escAdmin(localStorage.getItem('birthdayJengPhotoCheck_'+g.code)||'NOT CHECKED')}</div><div class="detail-actions"><button data-action="view-fortunes" data-code="${escAdmin(g.code)}">VIEW FORTUNES</button><button data-action="edit" data-code="${escAdmin(g.code)}">EDIT</button><button data-action="reset" data-code="${escAdmin(g.code)}">RESET</button><button data-action="delete" data-code="${escAdmin(g.code)}">DELETE</button></div></div></td>`;tbody.appendChild(detail);});}
 function escAdmin(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function generateGuestCode(){const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let c;do{c='';for(let i=0;i<4;i++)c+=alphabet[Math.floor(Math.random()*alphabet.length)];}while(guests[c]||adminGuests.some(g=>g.code===c));return c;}
-function openAdminModal(code){const g=code?findAdminGuest(code):{code:generateGuestCode(),name:'',rsvp:'PENDING',plusOne:'',description:''};const div=document.createElement('div');div.className='admin-modal';div.innerHTML=`<div class="admin-modal-card"><h3>${code?'EDIT GUEST':'ADD GUEST'}</h3><label>NAME</label><input id="am-name" value="${escAdmin(g.name)}"><label>SECRET CODE</label><div style="display:flex;gap:8px"><input id="am-code" value="${escAdmin(g.code)}" readonly style="flex:1"><button type="button" id="am-regenerate" class="secondary-button" ${code?'disabled':''}>REGENERATE</button></div><label>RSVP</label><select id="am-rsvp"><option>PENDING</option><option>YES</option><option>NO</option></select><label>PLUS-ONE NAME</label><input id="am-plus" value="${escAdmin(g.plusOne)}"><label>WHAT JENG KNOWS & DOESN'T KNOW</label><textarea id="am-description">${escAdmin(g.description)}</textarea><div class="modal-actions"><button class="primary-button" id="am-save">SAVE CHANGES</button><button class="secondary-button" id="am-cancel">CANCEL</button></div></div>`;document.body.appendChild(div);div.querySelector('#am-rsvp').value=g.rsvp||'PENDING';div.querySelector('#am-regenerate').onclick=()=>div.querySelector('#am-code').value=generateGuestCode();div.querySelector('#am-cancel').onclick=()=>div.remove();div.querySelector('#am-save').onclick=()=>{const name=div.querySelector('#am-name').value.trim(),newCode=div.querySelector('#am-code').value.trim().toUpperCase(),rsvp=div.querySelector('#am-rsvp').value,plusOne=div.querySelector('#am-plus').value.trim(),description=div.querySelector('#am-description').value;if(!name||!newCode){alert('Name and code are required.');return}if(!code&&adminGuests.some(x=>x.code===newCode)){alert('Code already exists.');return}if(plusOne&&rsvp!=='YES'){alert('Plus-One requires RSVP YES.');return}if(plusOne&&adminGuests.filter(x=>!x.deleted&&x.rsvp==='YES'&&x.plusOne&&x.code!==code).length>=3){alert('Plus-One slots full (3/3).');return}if(code){Object.assign(g,{name,rsvp,plusOne,description});guests[g.code]=name;}else{adminGuests.push({code:newCode,name,rsvp,plusOne,description,fortunes:[],deleted:false});guests[newCode]=name;}adminDataSave(adminGuests);div.remove();renderAdmin();alert('Saved.');}}
+function openAdminModal(code){const g=code?findAdminGuest(code):{code:generateGuestCode(),name:'',rsvp:'PENDING',plusOne:'',description:''};const div=document.createElement('div');div.className='admin-modal';div.innerHTML=`<div class="admin-modal-card"><h3>${code?'EDIT GUEST':'ADD GUEST'}</h3><label>NAME</label><input id="am-name" value="${escAdmin(g.name)}"><label>SECRET CODE</label><div style="display:flex;gap:8px"><input id="am-code" value="${escAdmin(g.code)}" readonly style="flex:1"><button type="button" id="am-regenerate" class="secondary-button" ${code?'disabled':''}>REGENERATE</button></div><label>RSVP (DATABASE)</label><div class="detail-meta">${escAdmin(g.rsvp||'PENDING')} · Managed directly by Supabase. Use RESET to unlock a guest.</div><label>WHAT JENG KNOWS & DOESN'T KNOW</label><textarea id="am-description">${escAdmin(g.description)}</textarea><div class="modal-actions"><button class="primary-button" id="am-save">SAVE CHANGES</button><button class="secondary-button" id="am-cancel">CANCEL</button></div></div>`;document.body.appendChild(div);div.querySelector('#am-regenerate').onclick=()=>div.querySelector('#am-code').value=generateGuestCode();div.querySelector('#am-cancel').onclick=()=>div.remove();div.querySelector('#am-save').onclick=()=>{const name=div.querySelector('#am-name').value.trim(),newCode=div.querySelector('#am-code').value.trim().toUpperCase(),description=div.querySelector('#am-description').value;if(!name||!newCode){alert('Name and code are required.');return}if(!code&&adminGuests.some(x=>x.code===newCode)){alert('Code already exists.');return}if(code){Object.assign(g,{name,description});guests[g.code]=name;}else{adminGuests.push({code:newCode,name,rsvp:'PENDING',plusOne:'',description,fortunes:[],deleted:false});guests[newCode]=name;}adminDataSave(adminGuests);div.remove();renderAdmin();alert('Saved.');}}
 function viewGuestFortunes(code){const g=findAdminGuest(code);if(!g)return;const div=document.createElement('div');div.className='admin-modal';div.innerHTML=`<div class="admin-modal-card"><h3>FORTUNE HISTORY — ${escAdmin(g.name)}</h3><p>${g.fortunes.length}/2 OPENED</p><div class="fortune-admin-list">${g.fortunes.length?g.fortunes.map((f,i)=>`<div class="fortune-history-item"><b>NO. ${i+1}</b> ${escAdmin(f)}</div>`).join(''):'<div class="fortune-history-item">No fortunes opened yet.</div>'}</div><div class="modal-actions"><button class="secondary-button" id="fortune-close">CLOSE</button></div></div>`;document.body.appendChild(div);div.querySelector('#fortune-close').onclick=()=>div.remove();}
 function clearGuestFortuneRecords(code){
   // Clear all current and legacy records only when Jeng explicitly resets this guest.
@@ -755,18 +740,15 @@ async function resetGuest(code){
  if(!confirm(`Reset ${g.name} completely? This clears their ${LOCAL_PREVIEW_MODE?'local preview':'Supabase'} RSVP lock, Plus-One, description and Fortune history.`))return;
  try{
    // Reset authoritative RSVP row first in live mode; local preview only clears browser state.
-   if(LOCAL_PREVIEW_MODE){localStorage.removeItem(LOCAL_RSVP_PREFIX+code);}
-   else{
-     await callBirthdayFunction({action:'admin-reset-rsvp',code:guestCode,target_code:code});
-     const verify=await callBirthdayFunction({action:'get-rsvp',code});
-     const rr=verify.rsvp||{};
-     if((rr.status||'').toUpperCase()!=='PENDING'||rr.locked||rr.plus_one_name){throw new Error('Reset request returned, but live database verification did not confirm a clean PENDING state.');}
-   }
+   await callBirthdayFunction({action:'admin-reset-rsvp',code:guestCode,target_code:code});
+   const verify=await callBirthdayFunction({action:'get-rsvp',code});
+   const rr=verify.rsvp||{};
+   if((rr.status||'').toUpperCase()!=='PENDING'||rr.locked||rr.plus_one_name||rr.submitted_at){throw new Error('Reset request returned, but live database verification did not confirm a clean PENDING state.');}
    g.rsvp='PENDING';g.plusOne='';g.description='';g.fortunes=[];
    clearGuestFortuneRecords(code);
    localStorage.removeItem('birthdayJengDescription_'+code);
-   adminDataSave(adminGuests);renderAdmin();
-   alert(`${g.name}: ${LOCAL_PREVIEW_MODE?'Local preview RSVP':'Supabase RSVP'} is now PENDING and unlocked. Fortune history was reset in this browser.`);
+   adminDataSave(adminGuests);await refreshAdminRsvpsFromServer();renderAdmin();
+   alert(`${g.name}: Supabase RSVP is verified PENDING and unlocked. Fortune history was reset in this browser.`);
  }catch(e){
    alert('Could not reset RSVP.\n\n'+(e.message||'Unknown error'));
  }
@@ -787,17 +769,12 @@ document.getElementById('admin-reset-rsvp').onclick=async()=>{
  if(!confirm(`Reset ALL ${LOCAL_PREVIEW_MODE?'local preview':'Supabase'} RSVPs and Plus-One claims? This will unlock every guest RSVP.`))return;
  const button=document.getElementById('admin-reset-rsvp');button.disabled=true;const oldText=button.textContent;button.textContent='RESETTING…';
  try{
-   if(LOCAL_PREVIEW_MODE){Object.keys(guests).forEach(code=>localStorage.removeItem(LOCAL_RSVP_PREFIX+code));}
-   else{
-     await callBirthdayFunction({action:'admin-reset-all-rsvp',code:guestCode});
-     const activeCodes=adminGuests.filter(g=>!g.deleted).map(g=>g.code);
-     const checks=await Promise.all(activeCodes.map(code=>callBirthdayFunction({action:'get-rsvp',code})));
-     const bad=checks.map((result,i)=>({code:activeCodes[i],rsvp:result.rsvp||{}})).filter(x=>(x.rsvp.status||'').toUpperCase()!=='PENDING'||x.rsvp.locked||x.rsvp.plus_one_name);
-     if(bad.length){throw new Error('Reset-all verification failed for: '+bad.map(x=>x.code).join(', ')+'. Dashboard was not updated to claim a successful reset.');}
-   }
-   adminGuests.forEach(g=>{g.rsvp='PENDING';g.plusOne=''});
-   adminDataSave(adminGuests);renderAdmin();
-   alert(`All ${LOCAL_PREVIEW_MODE?'local preview':'Supabase'} RSVPs are now PENDING and unlocked.`);
+   await callBirthdayFunction({action:'admin-reset-all-rsvp',code:guestCode});
+   await refreshAdminRsvpsFromServer();
+   const bad=adminGuests.filter(g=>!g.deleted&&g.code!=='GJEN'&&((g.rsvp||'').toUpperCase()!=='PENDING'||g.plusOne));
+   if(bad.length){throw new Error('Reset-all verification failed for: '+bad.map(x=>x.code).join(', '));}
+   renderAdmin();
+   alert('All Supabase RSVPs are verified PENDING and unlocked.');
  }catch(e){alert('Could not reset RSVPs. Local data was not changed.\n\n'+(e.message||'Unknown error'));}
  finally{button.disabled=false;button.textContent=oldText;}
 };
