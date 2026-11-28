@@ -1,6 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#10091e">
@@ -432,7 +435,7 @@ async function codeVerify(){
   if(button){button.disabled=true;button.textContent='VERIFYING…';}
   try{
     const res=await fetch(SUPABASE_FUNCTION_URL,{
-      method:'POST',
+      method:'POST',cache:'no-store',credentials:'omit',
       headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY},
       body:JSON.stringify({code:val})
     });
@@ -501,7 +504,7 @@ async function codeVerify(){
 // the browser never receives or stores the service-role key.
 async function callBirthdayFunction(payload){
   const response=await fetch(SUPABASE_FUNCTION_URL,{
-    method:'POST',
+    method:'POST',cache:'no-store',credentials:'omit',
     headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY},
     body:JSON.stringify(payload)
   });
@@ -653,9 +656,11 @@ document.getElementById('go-rsvp').addEventListener('click',async()=>{
  if(LOCAL_PREVIEW_MODE){loadLocalRsvpState();renderRsvpServerState();return;}
  try{await loadRsvpServerState();renderRsvpServerState();}
  catch(e){
-   rsvpServerState={status:'PENDING',locked:false,plus_one_name:null,plus_one_claimed:0,slotsKnown:false};
-   message.textContent='Could not load your saved RSVP status. Your submission will still be checked by Supabase before it is saved.';
-   document.getElementById('rsvp-choice-buttons').classList.remove('hidden');confirmButton.classList.remove('hidden');confirmButton.disabled=false;
+   rsvpServerState={status:'UNKNOWN',locked:true,plus_one_name:null,plus_one_claimed:0,slotsKnown:false};
+   message.textContent='LIVE RSVP STATUS COULD NOT BE LOADED. No cached RSVP data is used. Please go back and try again when your connection is stable.';
+   message.classList.remove('hidden');
+   document.getElementById('rsvp-choice-buttons').classList.add('hidden');
+   confirmButton.classList.add('hidden');confirmButton.disabled=true;
  }
 });
 document.getElementById('rsvp-yes').addEventListener('click',()=>{
@@ -692,7 +697,13 @@ document.getElementById('confirm-rsvp').addEventListener('click',async()=>{
  plusOneName=enteredPlus;error.textContent='';button.disabled=true;button.textContent='SAVING RSVP…';
  try{
    if(LOCAL_PREVIEW_MODE){saveLocalRsvp(guestCode,{status:rsvpChoice,locked:true,plus_one_name:enteredPlus||null});}
-   else{await callBirthdayFunction({action:'save-rsvp',code:guestCode,rsvp:rsvpChoice,bring_plus_one:wantsPlus,plus_one_name:enteredPlus});}
+   else{
+     await callBirthdayFunction({action:'save-rsvp',code:guestCode,rsvp:rsvpChoice,bring_plus_one:wantsPlus,plus_one_name:enteredPlus});
+     const verified=await loadRsvpServerState();
+     if(verified.status!==rsvpChoice||!verified.locked||(verified.plus_one_name||null)!==(enteredPlus||null)){
+       throw new Error('RSVP was submitted, but live database read-back did not match. Please contact Jeng before retrying.');
+     }
+   }
    rsvpServerState={status:rsvpChoice,locked:true,plus_one_name:enteredPlus||null,plus_one_claimed:rsvpServerState.plus_one_claimed+(wantsPlus?1:0),slotsKnown:rsvpServerState.slotsKnown};
    // Keep local demo admin view in sync for this browser only; Supabase is the source of truth.
    const localGuest=findAdminGuest(guestCode);if(localGuest){localGuest.rsvp=rsvpChoice;localGuest.plusOne=enteredPlus;adminDataSave(adminGuests);}
@@ -745,7 +756,12 @@ async function resetGuest(code){
  try{
    // Reset authoritative RSVP row first in live mode; local preview only clears browser state.
    if(LOCAL_PREVIEW_MODE){localStorage.removeItem(LOCAL_RSVP_PREFIX+code);}
-   else{await callBirthdayFunction({action:'admin-reset-rsvp',code:guestCode,target_code:code});}
+   else{
+     await callBirthdayFunction({action:'admin-reset-rsvp',code:guestCode,target_code:code});
+     const verify=await callBirthdayFunction({action:'get-rsvp',code});
+     const rr=verify.rsvp||{};
+     if((rr.status||'').toUpperCase()!=='PENDING'||rr.locked||rr.plus_one_name){throw new Error('Reset request returned, but live database verification did not confirm a clean PENDING state.');}
+   }
    g.rsvp='PENDING';g.plusOne='';g.description='';g.fortunes=[];
    clearGuestFortuneRecords(code);
    localStorage.removeItem('birthdayJengDescription_'+code);
@@ -772,7 +788,13 @@ document.getElementById('admin-reset-rsvp').onclick=async()=>{
  const button=document.getElementById('admin-reset-rsvp');button.disabled=true;const oldText=button.textContent;button.textContent='RESETTING…';
  try{
    if(LOCAL_PREVIEW_MODE){Object.keys(guests).forEach(code=>localStorage.removeItem(LOCAL_RSVP_PREFIX+code));}
-   else{await callBirthdayFunction({action:'admin-reset-all-rsvp',code:guestCode});}
+   else{
+     await callBirthdayFunction({action:'admin-reset-all-rsvp',code:guestCode});
+     const activeCodes=adminGuests.filter(g=>!g.deleted).map(g=>g.code);
+     const checks=await Promise.all(activeCodes.map(code=>callBirthdayFunction({action:'get-rsvp',code})));
+     const bad=checks.map((result,i)=>({code:activeCodes[i],rsvp:result.rsvp||{}})).filter(x=>(x.rsvp.status||'').toUpperCase()!=='PENDING'||x.rsvp.locked||x.rsvp.plus_one_name);
+     if(bad.length){throw new Error('Reset-all verification failed for: '+bad.map(x=>x.code).join(', ')+'. Dashboard was not updated to claim a successful reset.');}
+   }
    adminGuests.forEach(g=>{g.rsvp='PENDING';g.plusOne=''});
    adminDataSave(adminGuests);renderAdmin();
    alert(`All ${LOCAL_PREVIEW_MODE?'local preview':'Supabase'} RSVPs are now PENDING and unlocked.`);
