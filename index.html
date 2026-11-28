@@ -433,7 +433,7 @@ async function codeVerify(){
   try{
     const res=await fetch(SUPABASE_FUNCTION_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY},
+      headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY},
       body:JSON.stringify({code:val})
     });
     const data=await res.json().catch(()=>({}));
@@ -502,7 +502,7 @@ async function codeVerify(){
 async function callBirthdayFunction(payload){
   const response=await fetch(SUPABASE_FUNCTION_URL,{
     method:'POST',
-    headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY},
+    headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY},
     body:JSON.stringify(payload)
   });
   const data=await response.json().catch(()=>({}));
